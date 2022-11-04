@@ -4,6 +4,8 @@
 ![](https://img.shields.io/github/issues/peter-hunt/spiritual-python)
 ![](https://img.shields.io/github/stars/peter-hunt/spiritual-python)
 
+![](images/social-preview.png)
+
 This is the prototype of a MMORPG/metaverse game based on a sci-fi story in Python.
 
 # Table of Contents

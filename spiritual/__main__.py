@@ -10,14 +10,18 @@ Options:
   -h --help     Show this screen.
 """
 
-
 from docopt import docopt
+from logging import basicConfig as l_config
+
+from .__init__ import menu
 
 
 def main():
     args = docopt(__doc__)
-    debug = 'debugging ' if args['--debug'] else ''
-    print(f'Hello World of {debug}Spiritual!')
+
+    l_config(level = 0 if args['--debug'] else 50)
+
+    menu()
 
 
 if __name__ == '__main__':
