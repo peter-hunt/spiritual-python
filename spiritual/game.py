@@ -1,18 +1,16 @@
-from logging import getLogger
-
-from .utility import *
-
-
-__all__ = ['menu']
-
-logger = getLogger('MENU')
+from .command import *
+from .util import *
 
 
-@safe_func
-def menu():
-    logger.info('debug enabled for <menu>.')
-    print(f'Hello World of Spiritual!')
-    while True:
-        a = input('> ')
-        if a == 'exit':
-            break
+__all__ = ['menu_cmd']
+
+
+menu_cmd = CommandHandler('menu')
+
+@menu_cmd.add_func
+def list_worlds(self):
+    """
+    > list
+    List avaliable worlds.
+    """
+    green('Listing worlds...')

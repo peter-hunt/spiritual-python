@@ -14,6 +14,7 @@ This is the prototype of a MMORPG/metaverse game based on a sci-fi story in Pyth
 - [License](#license)
 - [Installation](#installation)
   - [Running](#running)
+  - [Updating](#updating)
 
 # License
 
@@ -31,10 +32,14 @@ pip install -r requirements.txt
 
 ## Running
 
-**This project requires Python 3.12+**
+**This project requires Python 3.11+**
 
 To run the project, use the following command:
 
 ```bash
 python -m spiritual
 ```
+
+## Updating
+
+To install a newer version of this project, copy the `data` folder in the `spiritual-python` folder, install the newer version, and put the files/folders in the original `data` folder in the new one.

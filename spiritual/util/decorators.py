@@ -1,10 +1,10 @@
 from logging import info as l_info
-from types import FunctionType
+from types import *
 
 __all__ = ['safe_func']
 
 
-def safe_func(func: FunctionType) ->  FunctionType:
+def safe_func(func: FunctionType) -> FunctionType:
     def _func(*args, **kwargs):
         try:
             return func(*args, **kwargs)
