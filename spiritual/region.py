@@ -1,23 +1,19 @@
-from dataclasses import *
+from dataclasses import dataclass
 from types import *
 from typing import *
 
-
 @dataclass
-class Item:
-    item_id: str = ''
-    amount: int = 1
+class Region:
+    name: str
 
     @classmethod
     def is_valid(cls, obj, /) -> bool:
         anno = cls.__annotations__
-        for name, anno_type in anno.items():
-            if name not in obj:
+        for name, value in obj.items():
+            anno_type = anno[name]
+            if name in anno and not isinstance(value, anno_type):
                 return False
-            value = obj[name]
             if isinstance(anno_type, GenericAlias):
-                if not isinstance(value, anno_type.__origin__):
-                    return False
                 if anno_type.__origin__ in {tuple, list}:
                     if len(anno_type.__args__) != 1:
                         continue
@@ -44,8 +40,6 @@ class Item:
                             return False
                     else:
                         continue
-            elif name in anno and not isinstance(value, anno_type):
-                return False
         return True
 
     @classmethod

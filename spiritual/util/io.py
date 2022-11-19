@@ -1,3 +1,4 @@
+from pathlib import Path
 from re import compile as re_compile, error as re_error, escape
 from sys import stdout
 
@@ -9,7 +10,7 @@ __all__ = [
     'gold', 'gray', 'dark_gray', 'blue', 'green', 'aqua', 'red', 'light_purple',
     'yellow', 'white',
 
-    'input_regex',
+    'input_regex', 'read',
 ]
 
 
@@ -105,3 +106,9 @@ def input_regex(prompt: str, /, pattern: str) -> str:
         if re_pattern.fullmatch(string):
             return string
         red(f'Invalid input for regex pattern {escape(pattern)}')
+
+
+def read(*args) -> str:
+    with open(Path('spiritual', *args), 'r', encoding='utf-8') as file:
+        text = file.read()
+    return text

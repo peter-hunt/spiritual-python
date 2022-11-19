@@ -12,7 +12,7 @@ __all__ = ['CommandFunction', 'CommandHandler']
 
 class CommandFunction:
     def __init__(self, func: FunctionType, /):
-        self.doc = '\n'.join(line.strip() for line in func.__doc__.split('\n'))
+        self.doc = '\n'.join(line.strip() for line in func.__doc__.strip().split('\n'))
         self.usages = [line[2:] for line in self.doc.split('\n')
                        if line.startswith('> ')]
         self.keyword = ' '.join(word for word in self.usages[0].split() if word[0] not in {'<', '['})
@@ -46,47 +46,45 @@ class CommandFunction:
             return (False, None)
         keyword_len = len(self.keyword.split())
 
-        text_words = text.split()
+        input_words = text.split()
         for usage in self.usages:
             usage_words = usage.split()
             min_usage = len([item for item in usage_words
                              if not item.startswith('[')])
-            if not min_usage <= len(text_words) <= len(usage_words):
+            if not min_usage <= len(input_words) <= len(usage_words):
                 continue
 
             args = {}
             num_text = keyword_len
-            preflag_usages = takewhile(lambda word: word.startswith('[--'), usage_words[keyword_len:])
-            flag_usages = dropwhile(lambda word: word.startswith('[--'), usage_words[keyword_len:])
+            preflag_usages = takewhile(lambda word: not word.startswith('[--'), usage_words[keyword_len:])
+            flag_usages = dropwhile(lambda word: not word.startswith('[--'), usage_words[keyword_len:])
             flag_usages = [flag.strip('[]') for flag in flag_usages]
             for flag in flag_usages:
                 args[flag] = False
 
             for word in preflag_usages:
                 if word[0] not in {'<', '['}:
-                    if word == text_words[num_text]:
+                    if word == input_words[num_text]:
                         continue
                     else:
                         break
                 clean_word = word.strip('<>[]')
                 if clean_word in TYPED_ARGS:
                     pattern, processor = TYPED_ARGS[clean_word]
-                    if not fullmatch(pattern, text_words[num_text]):
-                        break
+                    if not fullmatch(pattern, input_words[num_text]):
+                        if word[0] == '[':
+                            continue
+                        return (False, None)
                 else:
-                    processor = None
+                    processor = lambda value: value
 
-                if processor is None:
-                    args[word] = text_words[num_text]
-                else:
-                    args[word] = processor(text_words[num_text])
+                args[clean_word] = processor(input_words[num_text])
                 num_text += 1
 
-            for text_word in text_words[num_text:]:
+            for word in input_words[num_text:]:
                 for flag in flag_usages:
-                    if text_word[num_text] == flag:
+                    if word == flag:
                         args[flag[2:]] = True
-                        num_text += 1
                         break
                 else:
                     return (False, None)
@@ -96,7 +94,7 @@ class CommandFunction:
         return (False, None)
 
     def call(self, clsself: any, args: dict[str, any], /) -> any:
-        self.func(clsself, *args)
+        self.func(clsself, **args)
 
     def __eq__(self, value: any, /) -> bool:
         if isinstance(value, Self):
@@ -118,7 +116,7 @@ class CommandHandler:
         def exit_loop(self, /):
             """
             > exit
-            Exit the game.
+            Exit the current scope.
             """
             pass
 
@@ -129,16 +127,16 @@ class CommandHandler:
         self.funcs.append(CommandFunction(func))
 
     @safe_func
-    def run(self, clsself: any = None, /):
+    def run(self, clsself: any = None, /, prompt: str = '> '):
         self.logger.info(f'debug enabled for <{self.name}>.')
         while True:
-            user_input = ' '.join(input('> ').strip().split())
+            user_input = ' '.join(input(prompt).strip().split())
             if user_input == 'help':
-                print('\n\n'.join(func.doc for func in self.funcs))
+                gray('\n\n'.join(func.doc for func in self.funcs))
                 continue
             elif user_input.startswith('help '):
                 keyword = user_input[5:]
-                print('\n\n'.join(
+                gray('\n\n'.join(
                     func.doc for func in self.funcs
                     if func.keyword.startswith(keyword)
                 ))
